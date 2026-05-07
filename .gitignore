@@ -1,0 +1,10 @@
+# Ignorar dados locais
+*.csv
+*.json
+*.parquet
+
+# Ignorar arquivos do Python e VS Code
+__pycache__/
+.vscode/
+venv/
+.env
