@@ -8,7 +8,7 @@ from pathlib import Path
 current_file = Path(__file__).resolve()
 project_root = current_file.parent.parent.parent
 mapping_file = project_root / "data" / "bronze" / "id_mapping.csv"
-output_file = project_root / "data" / "silver" / "dim_skins.csv"
+output_file = project_root / "data" / "silver" / "dims" / "dim_skins.csv"
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

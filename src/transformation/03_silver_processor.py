@@ -14,7 +14,7 @@ project_root = current_path.parent.parent.parent
 today_str = datetime.now().strftime("%Y-%m-%d")
 
 bronze_dir = project_root / "data" / "bronze" / "prices" / today_str
-silver_dir = project_root / "data" / "silver"
+silver_dir = project_root / "data" / "silver" / "facts"
 
 
 def find_latest_json():

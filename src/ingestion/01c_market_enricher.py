@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 current_file = Path(__file__).resolve()
 project_root = current_file.parent.parent.parent
-output_file = project_root / "data" / "silver" / "dim_markets.csv"
+output_file = project_root / "data" / "silver" / "dims" / "dim_markets.csv"
 
 def generate_market_dimension():
     logging.info("Generating static market dimension table...")
