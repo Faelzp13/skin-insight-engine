@@ -1,9 +1,3 @@
-"""
-Module: Price Extractor (Bronze Layer)
-Author: Rafael Antônio Policena
-Description: Fetches price data in batches with a cooldown period and robust CSV reading.
-"""
-
 import os
 import asyncio
 import aiohttp

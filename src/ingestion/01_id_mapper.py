@@ -1,10 +1,3 @@
-"""
-Module: ID Mapper (Universal & Shielded Version)
-Author: Rafael Antônio Policena
-Description: Maps TradeUpSpy IDs to SkinSnipe IDs with universal hyphen handling
-             and resilient CSV reading to skip malformed lines.
-"""
-
 import asyncio
 import aiohttp
 import pandas as pd

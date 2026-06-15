@@ -1,9 +1,3 @@
-"""
-Module: Sitemap Extractor V4
-Author: Rafael Antônio Policena
-Description: Ingests multiple item types (items, capsules, etc.) from the sitemap.
-"""
-
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -44,7 +38,6 @@ def extract_skin_data():
         soup = BeautifulSoup(response.content, 'lxml-xml')
         all_urls = [loc.text for loc in soup.find_all('loc')]
 
-        # Filter URLs that match any of our allowed patterns
         filtered_urls = [url for url in all_urls if any(p in url for p in ALLOWED_PATTERNS)]
         logging.info(f"Identified {len(filtered_urls)} total items across all categories.")
 
@@ -71,7 +64,6 @@ def extract_skin_data():
         if not df.empty:
             df.to_csv(output_file, index=False)
             logging.info(f"Successfully saved {len(df)} items to {output_file}")
-            # Count items per type for the log
             type_counts = df['item_type'].value_counts().to_dict()
             logging.info(f"Breakdown by type: {type_counts}")
         else:
