@@ -20,7 +20,11 @@ def generate_market_dimension():
         {"market": "DMarket", "market_logo_url": "https://s3.eu-west-3.amazonaws.com/skinsnipe.com/img/common/logos/markets/logo-dmarket.png"},
         {"market": "SkinsMonkey", "market_logo_url": "https://s3.eu-west-3.amazonaws.com/skinsnipe.com/img/common/logos/markets/logo-skinsmonkey.png"},
         {"market": "CSFloat", "market_logo_url": "https://s3.eu-west-3.amazonaws.com/skinsnipe.com/img/common/logos/markets/logo-csfloat.png"},
-        {"market": "Tradeit.gg", "market_logo_url": "https://s3.eu-west-3.amazonaws.com/skinsnipe.com/img/common/logos/markets/logo-tradeitgg-2.png"}
+        {"market": "Tradeit.gg", "market_logo_url": "https://s3.eu-west-3.amazonaws.com/skinsnipe.com/img/common/logos/markets/logo-tradeitgg-2.png"},
+        {"market": "Skinflow", "market_logo_url": "https://s3.eu-west-3.amazonaws.com/skinsnipe.com/img/common/logos/markets/logo-skinflow-v2.png"},
+        {"market": "Market_37", "market_logo_url": "https://s3.eu-west-3.amazonaws.com/skinsnipe.com/img/common/logos/markets/logo-skinland.png"},
+        {"market": "Skinswap", "market_logo_url": "https://s3.eu-west-3.amazonaws.com/skinsnipe.com/img/common/logos/markets/logo-skinswap.png"},
+        {"market": "MarketCSGO", "market_logo_url": "https://s3.eu-west-3.amazonaws.com/skinsnipe.com/img/common/logos/markets/logo-marketcsgo-2.png"}
     ]
 
     df = pd.DataFrame(markets_data)

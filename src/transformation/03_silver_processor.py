@@ -18,7 +18,7 @@ silver_dir = project_root / "data" / "silver" / "facts"
 
 
 def find_latest_json():
-    """Finds the most recent JSON file in today's target folder."""
+    # Finds the most recent JSON file in today's target folder.
     if not bronze_dir.exists():
         return None
 
@@ -47,7 +47,7 @@ def process_silver_v2():
     market_names = {
         1: "Steam", 2: "Skinport", 5: "CS.Money", 6: "SkinBaron",
         8: "DMarket", 14: "SkinsMonkey", 19: "CSFloat", 25: "Skinflow",
-        29: "Skinswap", 31: "MarketCSGO", 35: "Tradeit.gg"
+        29: "Skinswap", 31: "MarketCSGO", 35: "Tradeit.gg", 37: "Market_37"
     }
 
     for item in items:
