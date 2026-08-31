@@ -23,9 +23,9 @@ jobs:
       - name: Extração Bronze
         env:
           AZURE_CONNECTION_STRING: ${{ secrets.AZURE_CONNECTION_STRING }}
-        run: python src/price_extractor.py
+        run: python src/02_price_extractor.py
 
       - name: Processamento Silver
         env:
           AZURE_CONNECTION_STRING: ${{ secrets.AZURE_CONNECTION_STRING }}
-        run: python src/silver_processor.py
+        run: python src/03_silver_processor.py
