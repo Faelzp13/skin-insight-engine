@@ -1,0 +1,31 @@
+name: Skin Insight Pipeline
+
+on:
+  schedule:
+    - cron: '0 */3 * * *' # Executa automaticamente a cada 3 horas
+  workflow_dispatch: # Permite disparo manual na interface do GitHub
+
+jobs:
+  run-etl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Extração Bronze
+        env:
+          AZURE_CONNECTION_STRING: ${{ secrets.AZURE_CONNECTION_STRING }}
+        run: python src/price_extractor.py
+
+      - name: Processamento Silver
+        env:
+          AZURE_CONNECTION_STRING: ${{ secrets.AZURE_CONNECTION_STRING }}
+        run: python src/silver_processor.py
