@@ -3,6 +3,8 @@ import pandas as pd
 import logging
 from pathlib import Path
 from datetime import datetime
+from azure.storage.blob import BlobServiceClient
+import os
 
 # Logging Setup
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -84,10 +86,32 @@ def process_silver_v2():
     if final_table:
         df = pd.DataFrame(final_table)
         silver_dir.mkdir(parents=True, exist_ok=True)
-        output_file = silver_dir / f"prices_silver_{today_str}.csv"
 
-        df.to_csv(output_file, index=False)
-        logging.info(f"Success! {len(df)} rows processed and saved to: {output_file}")
+        # Nomeia o arquivo com o sufixo de hora do JSON original
+        json_filename = json_path.stem
+        time_suffix = json_filename.split('_')[-1]
+        output_file = silver_dir / f"prices_silver_{today_str}_{time_suffix}.parquet"
+
+        # Salva o arquivo em formato Parquet usando a engine pyarrow
+        df.to_parquet(output_file, index=False, engine='pyarrow')
+        logging.info(f"Success! {len(df)} rows processed locally: {output_file}")
+
+        # --- NOVO: Upload para o Azure (Camada Silver) ---
+        conn_str = os.getenv("AZURE_CONNECTION_STRING")
+        if conn_str:
+            try:
+                blob_service_client = BlobServiceClient.from_connection_string(conn_str)
+                # Define o caminho dentro do container silver: facts/prices_silver_2026-08-31_14h30.parquet
+                blob_path = f"facts/{output_file.name}"
+                blob_client = blob_service_client.get_blob_client(container="silver", blob=blob_path)
+
+                with open(output_file, "rb") as data:
+                    blob_client.upload_blob(data, overwrite=True)
+                logging.info(f"Upload para o Azure Silver concluído: {blob_path}")
+            except Exception as e:
+                logging.error(f"Erro ao fazer upload para o Azure: {e}")
+        else:
+            logging.warning("AZURE_CONNECTION_STRING não encontrada. Upload não realizado.")
     else:
         logging.warning("No price data found within the JSON.")
 

@@ -1,0 +1,7 @@
+pandas
+aiohttp
+tqdm
+python-dotenv
+azure-storage-blob
+adlfs
+pyarrow

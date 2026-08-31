@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from tqdm.asyncio import tqdm
 from dotenv import load_dotenv
+from azure.storage.blob import BlobServiceClient
 
 # Load environment variables securely
 load_dotenv()
@@ -116,7 +117,24 @@ async def main():
         json.dump(all_results, f, ensure_ascii=False, indent=4)
 
     logging.info(f"Success! Total of {len(all_results)} items collected.")
-    logging.info(f"Final file saved at: {snapshot_path}")
+    logging.info(f"Final local file saved at: {snapshot_path}")
+
+    # --- NOVO: Upload para o Azure (Camada Bronze) ---
+    conn_str = os.getenv("AZURE_CONNECTION_STRING")
+    if conn_str:
+        try:
+            blob_service_client = BlobServiceClient.from_connection_string(conn_str)
+            # Define o caminho dentro do container bronze: prices/2026-08-31/full_snapshot_14h30.json
+            blob_path = f"prices/{today_str}/{snapshot_path.name}"
+            blob_client = blob_service_client.get_blob_client(container="bronze", blob=blob_path)
+
+            with open(snapshot_path, "rb") as data:
+                blob_client.upload_blob(data, overwrite=True)
+            logging.info(f"Upload para o Azure Bronze concluído: {blob_path}")
+        except Exception as e:
+            logging.error(f"Erro ao fazer upload para o Azure: {e}")
+    else:
+        logging.warning("AZURE_CONNECTION_STRING não encontrada. Arquivo salvo apenas localmente.")
 
 
 if __name__ == "__main__":
