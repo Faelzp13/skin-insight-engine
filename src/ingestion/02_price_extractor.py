@@ -15,7 +15,7 @@ load_dotenv()
 
 # --- Configuration ---
 BATCH_SIZE = 5114
-COOLDOWN_TIME = 300
+COOLDOWN_TIME = 330
 SEMAPHORE_LIMIT = 15
 
 # Path Setup
