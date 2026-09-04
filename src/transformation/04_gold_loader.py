@@ -6,7 +6,7 @@ import pandas as pd
 import time
 from sqlalchemy import create_engine, text
 from azure.storage.blob import BlobServiceClient
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import SQLAlchemyError
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -58,7 +58,7 @@ def main():
                 test_conn.execute(text("SELECT 1"))
             logging.info("Banco de dados acordado e pronto para receber dados!")
             break  # Sai do loop se der certo
-        except OperationalError:
+        except SQLAlchemyError:
             logging.warning(f"Banco pausado. Aguardando 30 segundos (Tentativa {attempt + 1}/3)...")
             time.sleep(30)
     else:
