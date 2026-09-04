@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient
 import os
+import gzip
 
 # Logging Setup
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,7 +25,7 @@ def find_latest_json():
     if not bronze_dir.exists():
         return None
 
-    files = list(bronze_dir.glob("*.json"))
+    files = list(bronze_dir.glob("*.json.gz"))
     if not files:
         return None
 
@@ -40,7 +41,7 @@ def process_silver_v2():
 
     logging.info(f"Reading file: {json_path.name}")
 
-    with open(json_path, 'r', encoding='utf-8') as f:
+    with gzip.open(json_path, 'rt', encoding='utf-8') as f:
         items = json.load(f)
 
     final_table = []
@@ -88,7 +89,7 @@ def process_silver_v2():
         silver_dir.mkdir(parents=True, exist_ok=True)
 
         # Nomeia o arquivo com o sufixo de hora do JSON original
-        json_filename = json_path.stem
+        json_filename = json_path.name.replace('.json.gz', '')
         time_suffix = json_filename.split('_')[-1]
         output_file = silver_dir / f"prices_silver_{today_str}_{time_suffix}.parquet"
 
