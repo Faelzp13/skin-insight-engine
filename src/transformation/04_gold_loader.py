@@ -3,8 +3,10 @@ import io
 import logging
 import urllib.parse
 import pandas as pd
+import time
 from sqlalchemy import create_engine, text
 from azure.storage.blob import BlobServiceClient
+from sqlalchemy.exc import OperationalError
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -47,6 +49,21 @@ def main():
         fast_executemany=True,
         connect_args={'timeout': 90}
     )
+
+    # --- PING DE AQUECIMENTO (Lida com o Cold Start do Azure) ---
+    logging.info("Enviando ping para acordar o Azure SQL...")
+    for attempt in range(3):
+        try:
+            with engine.connect() as test_conn:
+                test_conn.execute(text("SELECT 1"))
+            logging.info("Banco de dados acordado e pronto para receber dados!")
+            break  # Sai do loop se der certo
+        except OperationalError:
+            logging.warning(f"Banco pausado. Aguardando 30 segundos (Tentativa {attempt + 1}/3)...")
+            time.sleep(30)
+    else:
+        raise Exception("O banco de dados não acordou após 3 tentativas.")
+    # -------------------------------------------------------------
 
     # 3. Preparar e Atualizar Dimensões (Evitando erros de chaves duplicadas)
     # 3. Preparar Dimensões
