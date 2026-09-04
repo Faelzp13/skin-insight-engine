@@ -5,6 +5,8 @@ import urllib.parse
 import pandas as pd
 from sqlalchemy import create_engine, text
 from azure.storage.blob import BlobServiceClient
+from dotenv import load_dotenv
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -66,6 +68,8 @@ def main():
         # 4. Preparar e Atualizar Fatos
         fact_df = df[['tradeup_id', 'wear', 'market', 'price', 'timestamp']].copy()
         fact_df.rename(columns={'market': 'market_name', 'timestamp': 'extraction_timestamp'}, inplace=True)
+
+        fact_df['extraction_timestamp'] = pd.to_datetime(fact_df['extraction_timestamp'])
 
         logging.info("Limpando preços antigos no banco de dados...")
         conn.execute(text("DELETE FROM fact_current_prices"))
