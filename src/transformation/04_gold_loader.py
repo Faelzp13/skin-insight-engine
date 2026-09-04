@@ -42,7 +42,11 @@ def main():
 
     # 2. Conectar ao Azure SQL Database usando SQLAlchemy
     params = urllib.parse.quote_plus(sql_conn_str)
-    engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}", fast_executemany=True)
+    engine = create_engine(
+        f"mssql+pyodbc:///?odbc_connect={params}",
+        fast_executemany=True,
+        connect_args={'timeout': 90}
+    )
 
     # 3. Preparar e Atualizar Dimensões (Evitando erros de chaves duplicadas)
     # 3. Preparar Dimensões
