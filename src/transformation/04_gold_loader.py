@@ -42,7 +42,7 @@ def main():
 
     # 2. Conectar ao Azure SQL Database usando SQLAlchemy
     params = urllib.parse.quote_plus(sql_conn_str)
-    engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
+    engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}", fast_executemany=True)
 
     # 3. Preparar e Atualizar Dimensões (Evitando erros de chaves duplicadas)
     dim_skins = df[['tradeup_id', 'skin']].drop_duplicates().rename(columns={'skin': 'skin_name'})
