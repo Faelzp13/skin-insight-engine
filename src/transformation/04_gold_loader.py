@@ -5,8 +5,6 @@ import urllib.parse
 import pandas as pd
 from sqlalchemy import create_engine, text
 from azure.storage.blob import BlobServiceClient
-from dotenv import load_dotenv
-load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
