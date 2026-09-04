@@ -45,38 +45,38 @@ def main():
     engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}", fast_executemany=True)
 
     # 3. Preparar e Atualizar Dimensões (Evitando erros de chaves duplicadas)
+    # 3. Preparar Dimensões
     dim_skins = df[['tradeup_id', 'skin']].drop_duplicates().rename(columns={'skin': 'skin_name'})
     dim_markets = df[['market']].drop_duplicates().rename(columns={'market': 'market_name'})
 
-    with engine.connect() as conn:
-        # Atualiza dim_markets (insere apenas os que não existem)
+    # engine.begin() já cria a transação segura e faz o commit automático no final
+    with engine.begin() as conn:
+        # Atualiza dim_markets
         existing_markets = pd.read_sql("SELECT market_name FROM dim_markets", conn)
         new_markets = dim_markets[~dim_markets['market_name'].isin(existing_markets['market_name'])]
         if not new_markets.empty:
-            new_markets.to_sql('dim_markets', engine, if_exists='append', index=False)
+            new_markets.to_sql('dim_markets', conn, if_exists='append', index=False)
             logging.info(f"{len(new_markets)} novos mercados adicionados.")
 
-        # Atualiza dim_skins (insere apenas as que não existem)
+        # Atualiza dim_skins
         existing_skins = pd.read_sql("SELECT tradeup_id FROM dim_skins", conn)
         new_skins = dim_skins[~dim_skins['tradeup_id'].isin(existing_skins['tradeup_id'])]
         if not new_skins.empty:
-            new_skins.to_sql('dim_skins', engine, if_exists='append', index=False)
+            new_skins.to_sql('dim_skins', conn, if_exists='append', index=False)
             logging.info(f"{len(new_skins)} novas skins adicionadas.")
 
         # 4. Preparar e Atualizar Fatos
         fact_df = df[['tradeup_id', 'wear', 'market', 'price', 'timestamp']].copy()
         fact_df.rename(columns={'market': 'market_name', 'timestamp': 'extraction_timestamp'}, inplace=True)
+        fact_df['extraction_timestamp'] = pd.to_datetime(fact_df['extraction_timestamp']).dt.strftime(
+            '%Y-%m-%d %H:%M:%S')
 
-        fact_df['extraction_timestamp'] = pd.to_datetime(fact_df['extraction_timestamp'])
-
-        logging.info("Limpando preços antigos no banco de dados...")
-        conn.execute(text("DELETE FROM fact_current_prices"))
+        logging.info("Limpando preços antigos no banco de dados com TRUNCATE...")
+        conn.execute(text("TRUNCATE TABLE fact_current_prices"))
 
         logging.info("Inserindo os preços atuais atualizados...")
-        # Chunksize divide o envio para não sobrecarregar a rede do banco
-        fact_df.to_sql('fact_current_prices', engine, if_exists='append', index=False, chunksize=2000)
-
-        conn.commit()
+        # Note que agora usamos 'conn' ao invés de 'engine', evitando o Deadlock!
+        fact_df.to_sql('fact_current_prices', conn, if_exists='append', index=False, chunksize=2000)
 
     logging.info("Carga da Camada Gold concluída com sucesso!")
 
