@@ -1,69 +1,77 @@
-import Image from "next/image";
+import { getConnection } from '../lib/db';
+import SearchBar from './components/SearchBar';
 
-export default function Home() {
+export default async function Home() {
+  const pool = await getConnection();
+
+  // Query atualizada com a tabela dim_skins e puxando a image_url
+  const result = await pool.request().query(`
+    SELECT TOP 10 
+      d.skin_name,
+      d.image_url,
+      f.market_name,
+      f.wear, 
+      f.price 
+    FROM fact_current_prices f
+    JOIN dim_skins d ON f.tradeup_id = d.tradeup_id
+    ORDER BY f.price DESC
+  `);
+
+  const skins = result.recordset;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-neutral-950 text-neutral-50 p-10 font-sans">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold mb-2 text-emerald-500">CS2 Skin Insights</h1>
+        <p className="text-neutral-400 mb-8">
+          Os 10 itens mais caros no momento, puxados diretamente do Azure SQL.
+        </p>
+
+        <SearchBar />
+
+        <div className="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden shadow-xl">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-neutral-800 border-b border-neutral-700">
+                <th className="p-4 font-semibold text-neutral-300">Skin</th>
+                <th className="p-4 font-semibold text-neutral-300">Mercado</th>
+                <th className="p-4 font-semibold text-neutral-300">Desgaste</th>
+                <th className="p-4 font-semibold text-neutral-300 text-right">Preço (US$)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-800/50">
+              {skins.map((skin, index) => (
+                <tr
+                  key={index}
+                  className="hover:bg-neutral-800/40 transition-colors"
+                >
+                  <td className="p-4 flex items-center gap-4">
+                    {/* Renderiza a imagem da skin se a URL existir */}
+                    {skin.image_url ? (
+                      <img
+                        src={skin.image_url}
+                        alt={skin.skin_name}
+                        className="w-16 h-12 object-contain bg-neutral-800/50 rounded drop-shadow-md"
+                      />
+                    ) : (
+                      <div className="w-16 h-12 bg-neutral-800 rounded flex items-center justify-center text-[10px] text-neutral-500">
+                        Sem Foto
+                      </div>
+                    )}
+                    <span className="font-medium text-neutral-100">{skin.skin_name}</span>
+                  </td>
+                  <td className="p-4 text-neutral-400">{skin.market_name}</td>
+                  <td className="p-4 text-neutral-400">{skin.wear || '-'}</td>
+                  <td className="p-4 text-emerald-400 font-mono text-right font-medium">
+                    US$ {skin.price.toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+      </div>
+    </main>
   );
 }

@@ -5,6 +5,8 @@ const sqlConfig: sql.config = {
   password: process.env.AZURE_SQL_PASSWORD,
   database: process.env.AZURE_SQL_DATABASE,
   server: process.env.AZURE_SQL_SERVER as string,
+  connectionTimeout: 60000, // Dá 60 segundos para o banco acordar!
+  requestTimeout: 60000,
   pool: {
     max: 10,
     min: 0,
