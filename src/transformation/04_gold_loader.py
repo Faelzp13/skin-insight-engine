@@ -98,6 +98,40 @@ def main():
         logging.info("Inserindo os preços atuais atualizados...")
         # Note que agora usamos 'conn' ao invés de 'engine', evitando o Deadlock!
         fact_df.to_sql('fact_current_prices', conn, if_exists='append', index=False, chunksize=2000)
+        logging.info("Iniciando roteamento de snapshots de histórico...")
+
+        current_time = pd.Timestamp.now()
+        current_date_str = current_time.strftime('%Y-%m-%d')
+
+        # Prepara o DataFrame apenas com as colunas essenciais para o histórico
+        history_df = fact_df[['tradeup_id', 'wear', 'market_name', 'price']].copy()
+        history_df['date_id'] = current_date_str
+
+        # 1. SNAPSHOT DIÁRIO (Todo dia | Retenção: 30 dias)
+        conn.execute(text(f"DELETE FROM fact_history_daily WHERE date_id = '{current_date_str}'"))
+        history_df.to_sql('fact_history_daily', conn, if_exists='append', index=False, chunksize=2000)
+        conn.execute(text("DELETE FROM fact_history_daily WHERE date_id < CAST(GETDATE() - 30 AS DATE)"))
+
+        # 2. SNAPSHOT SEMANAL (Apenas aos Domingos | Retenção: 365 dias)
+        if current_time.dayofweek == 6:  # No Pandas, 6 = Domingo
+            logging.info("Domingo detectado: Atualizando snapshot semanal...")
+            conn.execute(text(f"DELETE FROM fact_history_weekly WHERE date_id = '{current_date_str}'"))
+            history_df.to_sql('fact_history_weekly', conn, if_exists='append', index=False, chunksize=2000)
+            conn.execute(text("DELETE FROM fact_history_weekly WHERE date_id < CAST(GETDATE() - 365 AS DATE)"))
+
+        # 3. SNAPSHOT MENSAL (Apenas no dia 1º do mês | Retenção: 5 anos / 1825 dias)
+        if current_time.day == 1:
+            logging.info("Dia 1º detectado: Atualizando snapshot mensal...")
+            conn.execute(text(f"DELETE FROM fact_history_monthly WHERE date_id = '{current_date_str}'"))
+            history_df.to_sql('fact_history_monthly', conn, if_exists='append', index=False, chunksize=2000)
+            conn.execute(text("DELETE FROM fact_history_monthly WHERE date_id < CAST(GETDATE() - 1825 AS DATE)"))
+
+        # 4. SNAPSHOT ANUAL (Apenas 1º de Janeiro | Retenção: 10 anos / 3650 dias)
+        if current_time.day == 1 and current_time.month == 1:
+            logging.info("1º de Janeiro detectado: Atualizando snapshot anual...")
+            conn.execute(text(f"DELETE FROM fact_history_yearly WHERE date_id = '{current_date_str}'"))
+            history_df.to_sql('fact_history_yearly', conn, if_exists='append', index=False, chunksize=2000)
+            conn.execute(text("DELETE FROM fact_history_yearly WHERE date_id < CAST(GETDATE() - 3650 AS DATE)"))
 
     logging.info("Carga da Camada Gold concluída com sucesso!")
 
