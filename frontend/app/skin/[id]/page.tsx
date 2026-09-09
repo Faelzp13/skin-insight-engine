@@ -1,6 +1,7 @@
 import { getConnection } from '../../../lib/db';
 import Link from 'next/link';
 import { getCurrencyInfo, formatPrice } from '../../../lib/currency';
+import PriceHistoryChart from '../../components/PriceHistoryChart';
 
 export default async function SkinPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -11,24 +12,65 @@ export default async function SkinPage({ params }: { params: Promise<{ id: strin
 
   const batchQuery = `
     SELECT skin_name, image_url FROM dim_skins WHERE tradeup_id = @id;
+    
     SELECT market_name, wear, price FROM fact_current_prices WHERE tradeup_id = @id;
+    
     SELECT market_name, logo_url AS image_url FROM dim_markets;
+    
+    -- Busca o histórico diário agrupando a média de todos os mercados
+    SELECT date_id, wear, AVG(price) as avg_price 
+    FROM fact_history_daily 
+    WHERE tradeup_id = @id 
+    GROUP BY date_id, wear 
+    ORDER BY date_id ASC;
   `;
 
   const dbResult = await pool.request()
     .input('id', id)
     .query(batchQuery);
 
-  // O SQL Server devolve os resultados na propriedade "recordsets" (no plural),
-  // que é um array contendo os resultados de cada SELECT na ordem em que foram chamados.
   const skin = dbResult.recordsets[0][0];
   const prices = dbResult.recordsets[1];
   const marketsRaw = dbResult.recordsets[2];
+  const historyRaw = dbResult.recordsets[3];
 
   const marketsInfo = marketsRaw.reduce((acc, curr) => {
     acc[curr.market_name] = curr.image_url;
     return acc;
   }, {} as Record<string, string>);
+
+  // --- TRANSFORMAÇÃO DE DADOS PARA O RECHARTS ---
+  const chartDataMap: Record<string, any> = {};
+
+  historyRaw.forEach((row: any) => {
+    // Tratamento dinâmico para date_id (suporta YYYYMMDD ou objetos Date do SQL)
+    let formattedDate = '';
+    const dId = row.date_id;
+
+    if (typeof dId === 'number' || (typeof dId === 'string' && dId.toString().length === 8 && !dId.toString().includes('-'))) {
+      const s = String(dId);
+      formattedDate = `${s.substring(6, 8)}/${s.substring(4, 6)}`; // Converte 20260909 para 09/09
+    } else if (dId instanceof Date) {
+      formattedDate = dId.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    } else {
+      formattedDate = String(dId);
+    }
+
+    if (!chartDataMap[formattedDate]) {
+      chartDataMap[formattedDate] = { date: formattedDate };
+    }
+
+    // NORMALIZAÇÃO PARA O GRÁFICO: Transforma "Souvenir " em "Sv "
+    let cleanWear = row.wear;
+    if (cleanWear.startsWith('Souvenir ')) {
+      cleanWear = cleanWear.replace('Souvenir ', 'Sv ');
+    }
+
+    // Alimenta o objeto com o preço médio do desgaste
+    chartDataMap[formattedDate][cleanWear] = row.avg_price;
+  });
+
+  const chartData = Object.values(chartDataMap);
 
   if (!skin) {
     return (
@@ -222,6 +264,12 @@ export default async function SkinPage({ params }: { params: Promise<{ id: strin
             </div>
           </div>
         ))}
+
+        {/* --- GRÁFICO DE HISTÓRICO DE PREÇOS --- */}
+        {chartData.length > 0 && (
+          <PriceHistoryChart data={chartData} rate={rate} symbol={symbol} />
+        )}
+        <div className="mb-10"></div> {/* Espaçamento extra antes das tabelas */}
 
       </div>
     </main>
