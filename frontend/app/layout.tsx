@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import ThemeProvider from './components/ThemeProvider';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,13 +17,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // Adicionamos suppressHydrationWarning para o next-themes funcionar perfeitamente com a tag html
     <html lang="pt-BR" suppressHydrationWarning>
-      {/* Adicionado o suppressHydrationWarning aqui no body também! */}
-      <body className={`${inter.className} antialiased bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 min-h-screen transition-colors`} suppressHydrationWarning>
+      <body className={`${inter.className} antialiased bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 min-h-screen flex flex-col transition-colors`} suppressHydrationWarning>
         <ThemeProvider>
           <Navbar />
-          {children}
+          <div className="flex-grow">
+            {children}
+          </div>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
