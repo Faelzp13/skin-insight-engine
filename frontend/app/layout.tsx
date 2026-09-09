@@ -18,7 +18,8 @@ export default function RootLayout({
   return (
     // Adicionamos suppressHydrationWarning para o next-themes funcionar perfeitamente com a tag html
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 min-h-screen transition-colors`}>
+      {/* Adicionado o suppressHydrationWarning aqui no body também! */}
+      <body className={`${inter.className} antialiased bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 min-h-screen transition-colors`} suppressHydrationWarning>
         <ThemeProvider>
           <Navbar />
           {children}

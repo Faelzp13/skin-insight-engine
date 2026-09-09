@@ -5,7 +5,7 @@ const sqlConfig: sql.config = {
   password: process.env.AZURE_SQL_PASSWORD,
   database: process.env.AZURE_SQL_DATABASE,
   server: process.env.AZURE_SQL_SERVER as string,
-  connectionTimeout: 60000, // Dá 60 segundos para o banco acordar!
+  connectionTimeout: 60000,
   requestTimeout: 60000,
   pool: {
     max: 10,
@@ -18,10 +18,15 @@ const sqlConfig: sql.config = {
   }
 };
 
+// Guarda a conexão globalmente para não estourar o limite do Azure no modo Dev
+const globalForSql = globalThis as unknown as { connPool: sql.ConnectionPool };
+
 export async function getConnection() {
   try {
-    const pool = await sql.connect(sqlConfig);
-    return pool;
+    if (!globalForSql.connPool) {
+      globalForSql.connPool = await sql.connect(sqlConfig);
+    }
+    return globalForSql.connPool;
   } catch (error) {
     console.error('Erro de conexão com o Azure SQL:', error);
     throw error;
