@@ -11,7 +11,7 @@ export default function Footer() {
           {/* Coluna 1: Marca e Descrição */}
           <div className="col-span-1 md:col-span-1">
             <Link href="/" className="text-xl font-bold text-emerald-600 dark:text-emerald-500 hover:opacity-80 transition-opacity">
-              SkinDelta
+              ArbitraCS
             </Link>
             <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
               A plataforma analítica definitiva para o mercado de skins de CS2. Dados reais, arquitetura robusta e margens sem vieses.
@@ -45,12 +45,12 @@ export default function Footer() {
             <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Engenharia</h3>
             <ul className="space-y-3">
               <li>
-                <a href="https://github.com/rafaelpolicena" target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-emerald-600 dark:hover:text-emerald-500 transition-colors flex items-center gap-2">
+                <a href="https://github.com/faelzp13" target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-emerald-600 dark:hover:text-emerald-500 transition-colors flex items-center gap-2">
                   GitHub
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-emerald-600 dark:hover:text-emerald-500 transition-colors flex items-center gap-2">
+                <a href="https://linkedin.com/in/rafael-policena" target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-emerald-600 dark:hover:text-emerald-500 transition-colors flex items-center gap-2">
                   LinkedIn
                 </a>
               </li>
@@ -61,7 +61,7 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-1">
             <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Aviso Legal</h3>
             <p className="text-xs text-neutral-500 dark:text-neutral-500 leading-relaxed">
-              SkinDelta não é afiliada, associada, autorizada, endossada por, ou de qualquer forma oficialmente conectada à Valve Corporation. Counter-Strike e CS2 são marcas registradas da Valve Corporation.
+              ArbitraCS não é afiliada, associada, autorizada, endossada por, ou de qualquer forma oficialmente conectada à Valve Corporation. Counter-Strike e CS2 são marcas registradas da Valve Corporation.
             </p>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function Footer() {
         {/* Barra Inferior */}
         <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-neutral-500 dark:text-neutral-500">
-            &copy; {currentYear} SkinDelta. Todos os direitos reservados.
+            &copy; {currentYear} ArbitraCS. Todos os direitos reservados.
           </p>
           <p className="text-sm text-neutral-500 dark:text-neutral-500">
             Desenvolvido por <span className="font-medium text-neutral-700 dark:text-neutral-300">Rafael Policena</span>

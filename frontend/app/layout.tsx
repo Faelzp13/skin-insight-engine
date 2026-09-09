@@ -7,7 +7,7 @@ import Footer from './components/Footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Skin Insight Engine',
+  title: 'ArbitraCS',
   description: 'Acompanhe os melhores preços de skins de CS2',
 };
 

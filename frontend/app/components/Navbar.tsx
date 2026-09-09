@@ -63,7 +63,7 @@ export default function Navbar() {
         {/* Esquerda: Logo e Menus */}
         <div className="flex items-center gap-8">
           <Link href="/" className="text-xl font-bold text-emerald-600 dark:text-emerald-500 hover:opacity-80 transition-opacity">
-            SkinDelta {/* <-- Substitua pelo nome que escolher! */}
+            ArbitraCS {}
           </Link>
 
           {/* Menus de Navegação (Escondidos em telas muito pequenas) */}
