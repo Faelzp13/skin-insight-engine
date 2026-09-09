@@ -222,7 +222,18 @@ export default async function SkinPage({ params }: { params: Promise<{ id: strin
                     {sortedMarkets.map(market => (
                       <th key={market} className="p-4 text-center">
                         {marketsInfo[market] ? (
-                          <img src={marketsInfo[market]} alt={market} className="h-8 w-auto mx-auto object-contain transition-all drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"/>
+                          <div className="group relative inline-block">
+                            <img
+                              src={marketsInfo[market]}
+                              alt={market}
+                              className="h-8 w-auto mx-auto object-contain transition-all drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] cursor-help"
+                            />
+                            {/* Tooltip Ajustado: Agora aparece para baixo (top-full) e a setinha aponta para cima (border-b) */}
+                            <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold px-3 py-1.5 rounded whitespace-nowrap shadow-xl z-50">
+                              {market}
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-neutral-900 dark:border-b-white"></div>
+                            </div>
+                          </div>
                         ) : (
                           <span className="font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider text-xs">{market}</span>
                         )}
