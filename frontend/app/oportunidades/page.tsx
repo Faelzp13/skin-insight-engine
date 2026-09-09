@@ -16,22 +16,26 @@ export default function OportunidadesPage() {
           <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 rounded-xl shadow-lg flex flex-col h-full">
             <h2 className="text-2xl font-bold text-emerald-600 dark:text-emerald-500 mb-4">Arbitragem Real</h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 flex-1">
-              Encontre skins extremamente baratas em mercados terceiros com alto potencial de revenda direta na Steam (Ex: Compra por R$100, vende por R$400).
+              Encontre skins baratas em mercados terceiros com alto potencial de revenda na Steam, usando a <strong>média histórica de 7 dias</strong> para evitar falsas anomalias.
             </p>
-            <button className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 transition-colors">
-              Acessar Módulo
-            </button>
+            <Link href="/oportunidades/arbitragem" className="w-full">
+              <button className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 transition-colors">
+                Acessar Módulo
+              </button>
+            </Link>
           </div>
 
-          {/* Card 2: Menor Preço do Mês */}
+          {/* Card 2: Mínimas Históricas */}
           <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 rounded-xl shadow-lg flex flex-col h-full">
             <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-500 mb-4">Mínimas Históricas</h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 flex-1">
-              Filtre itens que atingiram o menor preço registrado nos últimos 30 dias. Ideal para montar inventário visando longo prazo.
+              Filtre itens cujo preço atual seja menor ou igual ao menor preço registrado nos últimos 30 dias em qualquer mercado. Ideal para investir a longo prazo.
             </p>
-            <button className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors">
-              Acessar Módulo
-            </button>
+            <Link href="/oportunidades/minimas" className="w-full">
+              <button className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors">
+                Acessar Módulo
+              </button>
+            </Link>
           </div>
 
           {/* Card 3: Tendências */}
