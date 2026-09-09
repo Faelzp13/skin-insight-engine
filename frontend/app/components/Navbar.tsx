@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -11,10 +12,18 @@ const CURRENCIES = [
   { code: "EUR", symbol: "€", flag: "🇪🇺", label: "EUR" },
 ];
 
+// Array com os itens do menu
+const NAV_LINKS = [
+  { label: "Explorar", href: "/" },
+  { label: "Oportunidades", href: "/oportunidades" },
+  { label: "Mercados", href: "/mercados" },
+];
+
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const pathname = usePathname(); // Para saber qual menu está ativo
 
   const [currency, setCurrency] = useState(CURRENCIES[0]);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
@@ -51,19 +60,41 @@ export default function Navbar() {
     <nav className="w-full bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 transition-colors relative z-50">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
-        <Link href="/" className="text-xl font-bold text-emerald-600 dark:text-emerald-500 hover:opacity-80 transition-opacity">
-          Skin Insight Engine
-        </Link>
+        {/* Esquerda: Logo e Menus */}
+        <div className="flex items-center gap-8">
+          <Link href="/" className="text-xl font-bold text-emerald-600 dark:text-emerald-500 hover:opacity-80 transition-opacity">
+            SkinDelta {/* <-- Substitua pelo nome que escolher! */}
+          </Link>
 
+          {/* Menus de Navegação (Escondidos em telas muito pequenas) */}
+          <div className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors
+                    ${isActive 
+                      ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100' 
+                      : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-200'
+                    }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Direita: Seletores */}
         <div className="flex items-center gap-5">
 
-          {/* Seletor de Moeda */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
               className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
             >
-              {/* Mostra apenas a bandeira e a setinha */}
               <span className="text-xl leading-none">{currency.flag}</span>
               <svg className={`w-4 h-4 text-neutral-500 transition-transform ${isCurrencyOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -90,7 +121,6 @@ export default function Navbar() {
 
           <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-700"></div>
 
-          {/* Switch de Tema */}
           {mounted ? (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -99,7 +129,6 @@ export default function Navbar() {
               aria-label="Alternar Tema"
             >
               <span
-                /* Aqui usamos apenas flex para centralizar o SVG perfeitamente */
                 className={`absolute left-1 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-md transition-transform duration-300
                   ${theme === 'dark' ? 'translate-x-7' : 'translate-x-0'}`}
               >
