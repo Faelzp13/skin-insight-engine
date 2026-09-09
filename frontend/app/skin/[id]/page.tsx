@@ -2,6 +2,7 @@ import { getConnection } from '../../../lib/db';
 import Link from 'next/link';
 import { getCurrencyInfo, formatPrice } from '../../../lib/currency';
 import PriceHistoryChart from '../../components/PriceHistoryChart';
+import SearchBar from '../../components/SearchBar';
 
 export default async function SkinPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -164,9 +165,9 @@ export default async function SkinPage({ params }: { params: Promise<{ id: strin
     <main className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 p-10 font-sans transition-colors">
       <div className="max-w-7xl mx-auto">
 
-        <Link href="/" className="text-emerald-600 dark:text-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 mb-8 inline-block font-medium transition-colors">
-          &larr; Voltar para a Busca
-        </Link>
+        <div className="mb-8 w-full max-w-3xl mx-auto">
+          <SearchBar />
+        </div>
 
         {/* Topo Dividido: Imagem (Esquerda) e Média (Direita) */}
         <div className="flex flex-col lg:flex-row gap-8 mb-8">
