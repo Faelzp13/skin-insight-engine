@@ -42,11 +42,13 @@ export default function OportunidadesPage() {
           <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 rounded-xl shadow-lg flex flex-col h-full">
             <h2 className="text-2xl font-bold text-orange-600 dark:text-orange-500 mb-4">Tendências (Em Alta)</h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 flex-1">
-              Visualize quais armas ou caixas estão com o volume de procura subindo e preços em curva de aceleração nesta semana.
+              Visualize quais itens tiveram um aumento de preço substancial nos últimos 7 dias em comparação com a semana anterior. Ideal para surfar no hype.
             </p>
-            <button className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-500 font-semibold rounded-lg border border-neutral-200 dark:border-neutral-700 cursor-not-allowed">
-              Em Desenvolvimento...
-            </button>
+            <Link href="/oportunidades/tendencias" className="w-full">
+              <button className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-orange-500 hover:text-white dark:hover:bg-orange-600 transition-colors">
+                Analisar Tendências
+              </button>
+            </Link>
           </div>
         </div>
       </div>
