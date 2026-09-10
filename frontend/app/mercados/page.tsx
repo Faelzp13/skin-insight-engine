@@ -1,11 +1,17 @@
 import { getConnection } from "../../lib/db";
+import MarketTooltip from "../components/MarketTooltip";
 
 export default async function MercadosPage() {
   const pool = await getConnection();
 
-  // Puxa apenas os mercados que estão no seu banco
+  // Puxa os mercados que estão no banco (adicionei o market_id para o React não reclamar do key)
   const result = await pool.request().query(`
-    SELECT market_name, logo_url 
+    SELECT 
+  CASE 
+    WHEN market_name = 'market_37' THEN 'Skin.Land' 
+    ELSE market_name 
+  END AS market_name,
+  logo_url
     FROM dim_markets
     ORDER BY market_name ASC
   `);
@@ -25,18 +31,23 @@ export default async function MercadosPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {mercados.map((mercado) => (
             <div key={mercado.market_id} className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 flex flex-col items-center justify-center shadow-md hover:shadow-lg transition-shadow">
+
               {mercado.logo_url ? (
-                <img
-                  src={mercado.logo_url}
-                  alt={mercado.market_name}
-                  className="h-12 w-auto mx-auto object-contain transition-all drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
-                />
+                <MarketTooltip marketName={mercado.market_name}>
+                  <img
+                    src={mercado.logo_url}
+                    alt={mercado.market_name}
+                    className="h-12 w-auto mx-auto object-contain transition-all drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+                  />
+                </MarketTooltip>
               ) : (
                 <div className="h-12 w-12 bg-neutral-200 dark:bg-neutral-800 rounded-full mb-4"></div>
               )}
-              <span className="font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wide text-sm text-center">
+
+              <span className="font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wide text-sm text-center mt-4">
                 {mercado.market_name}
               </span>
+
             </div>
           ))}
         </div>

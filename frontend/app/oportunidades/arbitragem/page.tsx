@@ -2,6 +2,7 @@ import { getConnection } from '../../../lib/db';
 import { getCurrencyInfo, formatPrice } from '../../../lib/currency';
 import Link from 'next/link';
 import Filters from './Filters';
+import MarketTooltip from '../../components/MarketTooltip';
 
 export default async function ArbitragemPage({
   searchParams,
@@ -30,6 +31,7 @@ export default async function ArbitragemPage({
   }
 
   // NOVA QUERY: Compara Preço Atual de Terceiros x Preço Atual da Steam
+  // E faz o JOIN com a dim_markets para puxar a logo_url
   const result = await pool.request()
     .input('minPrice', minPrice)
     .input('maxPrice', maxPrice)
@@ -68,11 +70,13 @@ export default async function ArbitragemPage({
       d.image_url,
       r.wear,
       r.tp_market AS market_name,
+      m.logo_url, -- Puxando a logo diretamente do banco
       r.tp_price AS price,
       r.steam_price,
       r.discount_pct
     FROM RankedDeals r
     JOIN dim_skins d ON r.tradeup_id = d.tradeup_id
+    LEFT JOIN dim_markets m ON r.tp_market = m.market_name -- Cruzamento para buscar a logo
     WHERE r.rn = 1 
       AND r.discount_pct >= @minDiscount 
       AND r.discount_pct <= @maxDiscount
@@ -110,7 +114,7 @@ export default async function ArbitragemPage({
             <thead>
               <tr className="bg-neutral-100 dark:bg-neutral-950 border-b border-neutral-300 dark:border-neutral-800 transition-colors">
                 <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300">Item</th>
-                <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300">Onde Comprar</th>
+                <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300 text-center">Onde Comprar</th>
                 <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300">Preço Steam (Atual)</th>
                 <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300">Preço Agora</th>
                 <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300 text-right">Desconto (Lucro)</th>
@@ -143,10 +147,20 @@ export default async function ArbitragemPage({
                       </Link>
                     </td>
 
-                    <td className="p-4">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide bg-neutral-200/50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700">
-                        {skin.market_name}
-                      </span>
+                    <td className="p-4 text-center">
+                      <MarketTooltip marketName={skin.market_name}>
+                        {skin.logo_url ? (
+                          <img
+                            src={skin.logo_url}
+                            alt={skin.market_name}
+                            className="h-8 w-auto mx-auto object-contain transition-transform hover:scale-105 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+                          />
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide bg-neutral-200/50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700">
+                            {skin.market_name}
+                          </span>
+                        )}
+                      </MarketTooltip>
                     </td>
 
                     <td className="p-4">

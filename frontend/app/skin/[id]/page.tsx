@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getCurrencyInfo, formatPrice } from '../../../lib/currency';
 import PriceHistoryChart from '../../components/PriceHistoryChart';
 import SearchBar from '../../components/SearchBar';
+import MarketTooltip from '../../components/MarketTooltip'; // Importando nosso componente
 
 export default async function SkinPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -14,9 +15,24 @@ export default async function SkinPage({ params }: { params: Promise<{ id: strin
   const batchQuery = `
     SELECT skin_name, image_url FROM dim_skins WHERE tradeup_id = @id;
     
-    SELECT market_name, wear, price FROM fact_current_prices WHERE tradeup_id = @id;
+    SELECT 
+      CASE 
+        WHEN market_name = 'market_37' THEN 'Skin.Land' 
+        ELSE market_name 
+      END AS market_name, 
+      wear, 
+      price 
+    FROM fact_current_prices 
+    WHERE tradeup_id = @id;
     
-    SELECT market_name, logo_url AS image_url FROM dim_markets;
+    -- A sua correção na dim_markets (perfeita)
+    SELECT 
+      CASE 
+        WHEN market_name = 'market_37' THEN 'Skin.Land' 
+        ELSE market_name 
+      END AS market_name, 
+      logo_url AS image_url 
+    FROM dim_markets;
     
     -- Busca o histórico diário agrupando a média de todos os mercados
     SELECT date_id, wear, AVG(price) as avg_price 
@@ -219,24 +235,22 @@ export default async function SkinPage({ params }: { params: Promise<{ id: strin
                     <th className="p-5 font-bold text-neutral-700 dark:text-neutral-300 border-r border-neutral-300 dark:border-neutral-800 sticky left-0 bg-neutral-100 dark:bg-neutral-950 z-10 w-48 shadow-[2px_0_5px_rgba(0,0,0,0.1)] dark:shadow-[2px_0_5px_rgba(0,0,0,0.5)]">
                       Wear
                     </th>
+                    {/* Renderização Dinâmica do Tooltip Aqui */}
                     {sortedMarkets.map(market => (
                       <th key={market} className="p-4 text-center">
-                        {marketsInfo[market] ? (
-                          <div className="group relative inline-block">
+                        <MarketTooltip marketName={market}>
+                          {marketsInfo[market] ? (
                             <img
                               src={marketsInfo[market]}
                               alt={market}
-                              className="h-8 w-auto mx-auto object-contain transition-all drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] cursor-help"
+                              className="h-8 w-auto mx-auto object-contain transition-all drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
                             />
-                            {/* Tooltip Ajustado: Agora aparece para baixo (top-full) e a setinha aponta para cima (border-b) */}
-                            <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold px-3 py-1.5 rounded whitespace-nowrap shadow-xl z-50">
+                          ) : (
+                            <span className="font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider text-xs">
                               {market}
-                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-neutral-900 dark:border-b-white"></div>
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider text-xs">{market}</span>
-                        )}
+                            </span>
+                          )}
+                        </MarketTooltip>
                       </th>
                     ))}
                   </tr>

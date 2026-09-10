@@ -2,6 +2,7 @@ import { getConnection } from '../../../lib/db';
 import { getCurrencyInfo, formatPrice } from '../../../lib/currency';
 import Link from 'next/link';
 import FiltersMinimas from './Filters';
+import MarketTooltip from '../../components/MarketTooltip'; // Importando o tooltip
 
 export default async function MinimasPage({
   searchParams,
@@ -26,7 +27,7 @@ export default async function MinimasPage({
     categoryFilter = "AND (c.wear LIKE 'Sv %' OR c.wear LIKE 'Souvenir %')";
   }
 
-  // QUERY: Busca o menor preço e a média dos últimos 30 dias e compara com o preço atual.
+  // QUERY: Adicionado o LEFT JOIN com dim_markets para puxar a logo_url
   const result = await pool.request()
     .input('minPrice', minPrice)
     .input('maxPrice', maxPrice)
@@ -54,7 +55,7 @@ export default async function MinimasPage({
       FROM CurrentPrices c
       JOIN HistoryStats h ON c.tradeup_id = h.tradeup_id AND c.wear = h.wear
       WHERE c.price > 0 
-        AND c.price <= h.min_price_30d -- Condição Chave: Preço atual é o menor do mês
+        AND c.price <= h.min_price_30d 
         AND h.avg_price_30d >= @minPrice 
         AND h.avg_price_30d <= @maxPrice
         ${categoryFilter}
@@ -65,12 +66,14 @@ export default async function MinimasPage({
       d.image_url,
       r.wear,
       r.market_name,
+      m.logo_url, -- Puxando a logo do mercado
       r.price,
       r.min_price_30d,
       r.avg_price_30d,
       r.drop_pct
     FROM RankedLows r
     JOIN dim_skins d ON r.tradeup_id = d.tradeup_id
+    LEFT JOIN dim_markets m ON r.market_name = m.market_name -- Cruzamento para buscar a imagem
     WHERE r.rn = 1 
     ORDER BY r.drop_pct DESC
   `);
@@ -106,7 +109,7 @@ export default async function MinimasPage({
             <thead>
               <tr className="bg-neutral-100 dark:bg-neutral-950 border-b border-neutral-300 dark:border-neutral-800 transition-colors">
                 <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300">Item</th>
-                <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300">Onde Comprar</th>
+                <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300 text-center">Onde Comprar</th>
                 <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300">Média (30 Dias)</th>
                 <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300 text-blue-600 dark:text-blue-500">Preço Atual (Mínima)</th>
                 <th className="p-4 font-semibold text-neutral-700 dark:text-neutral-300 text-right">Queda da Média</th>
@@ -139,10 +142,20 @@ export default async function MinimasPage({
                       </Link>
                     </td>
 
-                    <td className="p-4">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide bg-neutral-200/50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700">
-                        {skin.market_name}
-                      </span>
+                    <td className="p-4 text-center">
+                      <MarketTooltip marketName={skin.market_name}>
+                        {skin.logo_url ? (
+                          <img
+                            src={skin.logo_url}
+                            alt={skin.market_name}
+                            className="h-8 w-auto mx-auto object-contain transition-transform hover:scale-105 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+                          />
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide bg-neutral-200/50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700">
+                            {skin.market_name}
+                          </span>
+                        )}
+                      </MarketTooltip>
                     </td>
 
                     <td className="p-4">
