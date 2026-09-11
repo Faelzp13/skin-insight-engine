@@ -1,19 +1,19 @@
 import { cookies } from 'next/headers';
 
 export async function getCurrencyInfo() {
-  // Pega o cookie salvo pelo Navbar (Next.js 15+ exige await no cookies)
   const cookieStore = await cookies();
   const currency = cookieStore.get('currency')?.value || 'USD';
 
   if (currency === 'USD') return { code: 'USD', symbol: 'US$', rate: 1 };
 
   try {
-    // Faz a requisição para a AwesomeAPI (ex: USD-BRL ou USD-EUR)
-    // O Next.js vai fazer cache dessa cotação por 1 hora (3600 segundos)
     const res = await fetch(`https://economia.awesomeapi.com.br/last/USD-${currency}`, {
-      next: { revalidate: 3600 },
-        signal: AbortSignal.timeout(3000)
+      next: { revalidate: 3600 }
     });
+
+    if (!res.ok) {
+      throw new Error(`AwesomeAPI respondeu com status: ${res.status}`);
+    }
 
     const data = await res.json();
     const rate = parseFloat(data[`USD${currency}`].bid);
@@ -25,7 +25,7 @@ export async function getCurrencyInfo() {
     };
   } catch (error) {
     console.error("Erro ao buscar cotação na API:", error);
-    // Fallback de segurança: se a API cair, volta para Dólar
+    // Fallback de segurança: se a API falhar, volta para Dólar para não quebrar a tela
     return { code: 'USD', symbol: 'US$', rate: 1 };
   }
 }

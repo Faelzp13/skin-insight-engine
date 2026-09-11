@@ -54,7 +54,7 @@ export default function Navbar() {
     setIsCurrencyOpen(false);
 
     document.cookie = `currency=${curr.code}; path=/; max-age=31536000`;
-    router.refresh();
+    window.location.reload();
   };
 
   return (
