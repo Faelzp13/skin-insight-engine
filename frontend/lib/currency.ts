@@ -7,30 +7,36 @@ export async function getCurrencyInfo() {
   if (currency === 'USD') return { code: 'USD', symbol: 'US$', rate: 1 };
 
   try {
-    const res = await fetch(`https://economia.awesomeapi.com.br/last/USD-${currency}`, {
-      next: { revalidate: 3600 }
+    // Nova API, super amigável com IPs da Vercel
+    const res = await fetch('https://open.er-api.com/v6/latest/USD', {
+      next: { revalidate: 3600 } // Cache no Next.js de 1 hora
     });
 
     if (!res.ok) {
-      throw new Error(`AwesomeAPI respondeu com status: ${res.status}`);
+      throw new Error(`API de câmbio respondeu com status: ${res.status}`);
     }
 
     const data = await res.json();
-    const rate = parseFloat(data[`USD${currency}`].bid);
+    const rate = data.rates[currency]; // Ex: data.rates['BRL']
 
     return {
       code: currency,
       symbol: currency === 'BRL' ? 'R$' : '€',
-      rate
+      rate: rate || 1
     };
   } catch (error) {
     console.error("Erro ao buscar cotação na API:", error);
-    // Fallback de segurança: se a API falhar, volta para Dólar para não quebrar a tela
-    return { code: 'USD', symbol: 'US$', rate: 1 };
+    // PLANO B: Valores fixos caso a API externa falhe, garantindo que o site nunca caia
+    const fallbackRates: Record<string, number> = { 'BRL': 5.50, 'EUR': 0.92 };
+
+    return {
+      code: currency,
+      symbol: currency === 'BRL' ? 'R$' : '€',
+      rate: fallbackRates[currency] || 1
+    };
   }
 }
 
-// Função auxiliar para formatar o número na tela
 export function formatPrice(priceInUSD: number, rate: number, symbol: string) {
   const converted = priceInUSD * rate;
   return `${symbol} ${converted.toFixed(2)}`;

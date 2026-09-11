@@ -11,10 +11,19 @@ export default function CurrencyConverter({ onClose }: { onClose: () => void }) 
   const dragStartPos = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    // Busca na API que você já usa
-    fetch('https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,EUR-USD')
+    // Nova API gringa
+    fetch('https://open.er-api.com/v6/latest/USD')
       .then(res => res.json())
-      .then(data => setRates(data));
+      .then(data => {
+        setRates({
+          BRL: data.rates.BRL,
+          EUR: data.rates.EUR
+        });
+      })
+      .catch(() => {
+        // Fallback caso dê erro de rede
+        setRates({ BRL: 5.50, EUR: 0.92 });
+      });
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => { setIsDragging(true); dragStartPos.current = { x: e.clientX - position.x, y: e.clientY - position.y }; };
@@ -43,11 +52,11 @@ export default function CurrencyConverter({ onClose }: { onClose: () => void }) 
           <div className="space-y-2 mt-4">
             <div className="flex justify-between items-center p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
               <span className="font-bold text-sm">🇧🇷 BRL</span>
-              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">R$ {(value * parseFloat(rates.USDBRL.bid)).toFixed(2)}</span>
+              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">R$ {(value * rates.BRL).toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700">
               <span className="font-bold text-sm">🇪🇺 EUR</span>
-              <span className="font-mono font-bold text-blue-600 dark:text-blue-400">€ {(value / parseFloat(rates.EURUSD.bid)).toFixed(2)}</span>
+              <span className="font-mono font-bold text-blue-600 dark:text-blue-400">€ {(value * rates.EUR).toFixed(2)}</span>
             </div>
           </div>
         ) : (
