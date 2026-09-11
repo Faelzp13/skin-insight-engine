@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import ToolsMenu from "./ToolsMenu";
 
 const CURRENCIES = [
   { code: "USD", symbol: "$", flag: "🇺🇸", label: "USD" },
@@ -84,6 +85,7 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            <ToolsMenu currency={currency} />
           </div>
         </div>
 
